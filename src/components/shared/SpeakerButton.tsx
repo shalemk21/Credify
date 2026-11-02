@@ -42,13 +42,12 @@ export const SpeakerButton: React.FC<SpeakerButtonProps> = ({
       setIsPlaying(false);
     } else {
       setIsPlaying(true);
-      speakText(textToRead, locale);
-      // Auto reset playing state after estimated duration
-      const words = textToRead.split(' ').length;
-      const durationMs = Math.max(2000, words * 450);
-      setTimeout(() => {
-        setIsPlaying(false);
-      }, durationMs);
+      speakText(
+        textToRead,
+        locale,
+        () => setIsPlaying(false),
+        () => setIsPlaying(false)
+      );
     }
   };
 

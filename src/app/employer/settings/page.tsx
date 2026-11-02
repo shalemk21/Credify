@@ -1,21 +1,32 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { EmployerShell } from '@/components/employer/EmployerShell';
 import { Button } from '@/components/shared/Button';
-import { Building2, Shield, Bell, CheckCircle2 } from 'lucide-react';
+import { Building2, Shield, Bell, CheckCircle2, ArrowLeft } from 'lucide-react';
 
 export default function EmployerSettingsPage() {
   return (
     <EmployerShell>
       <div className="max-w-2xl space-y-6">
-        <div>
-          <h1 className="text-xl font-black text-navy-primary tracking-tight">
-            Employer Profile & Preferences
-          </h1>
-          <p className="text-xs text-content-secondary">
-            Manage your organization credentials, notification alerts, and hiring policies
-          </p>
+        {/* Top Header with Physical Back Button (Requirement 7) */}
+        <div className="flex items-center gap-3">
+          <Link
+            href="/employer"
+            className="w-9 h-9 rounded-full flex items-center justify-center bg-white border border-slate-200 hover:bg-slate-50 text-navy-primary shadow-xs transition-colors shrink-0"
+            title="Return to Dashboard"
+          >
+            <ArrowLeft className="w-5 h-5 stroke-[2.5]" />
+          </Link>
+          <div>
+            <h1 className="text-xl font-black text-navy-primary tracking-tight">
+              Employer Profile & Preferences
+            </h1>
+            <p className="text-xs text-content-secondary">
+              Manage your organization credentials, notification alerts, and hiring policies
+            </p>
+          </div>
         </div>
 
         <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-5 text-sm text-navy-primary">
@@ -53,18 +64,32 @@ export default function EmployerSettingsPage() {
             </div>
 
             <div>
-              <label className="block mb-1 text-slate-500">Registered Phone / WhatsApp for Worker Direct Connect</label>
+              <label className="block mb-1 text-slate-500">Phone for SMS Worker Alerts</label>
               <input
                 type="text"
-                defaultValue="+91 98450 12345"
+                defaultValue="+91 98450 11223"
+                className="w-full p-2.5 rounded-xl border border-slate-200 bg-slate-50 font-bold"
+              />
+            </div>
+
+            <div>
+              <label className="block mb-1 text-slate-500">Default Daily Rate Benchmark (₹)</label>
+              <input
+                type="number"
+                defaultValue="1200"
                 className="w-full p-2.5 rounded-xl border border-slate-200 bg-slate-50 font-bold"
               />
             </div>
           </div>
 
-          <div className="pt-2 flex justify-end">
-            <Button variant="orange" size="md">
-              Save Changes
+          <div className="pt-2">
+            <Button
+              onClick={() => alert('Preferences saved!')}
+              variant="orange"
+              size="md"
+              className="font-bold"
+            >
+              Save Organization Settings
             </Button>
           </div>
         </div>

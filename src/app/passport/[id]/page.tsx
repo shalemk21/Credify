@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { Logo } from '@/components/shared/Logo';
 import { BadgeLevel } from '@/components/shared/BadgeLevel';
 import { TrustRing } from '@/components/shared/TrustRing';
@@ -11,7 +11,8 @@ import { QRCard } from '@/components/shared/QRCard';
 import { EvidenceGallery } from '@/components/shared/EvidenceGallery';
 import { SpeakerButton } from '@/components/shared/SpeakerButton';
 import { Button } from '@/components/shared/Button';
-import { INITIAL_WORKERS } from '@/lib/db';
+import { INITIAL_WORKERS, db } from '@/lib/db';
+import { generateSkillPassportPDF } from '@/lib/pdf';
 import {
   Share2,
   Download,
@@ -24,12 +25,14 @@ import {
   Lock,
   ArrowLeft
 } from 'lucide-react';
-import jsPDF from 'jspdf';
 
 export default function PublicPassportPage() {
   const params = useParams();
+  const router = useRouter();
   const workerId = params?.id as string;
-  const worker = INITIAL_WORKERS.find((w) => w.id === workerId) || INITIAL_WORKERS[0];
+  
+  // Lookup worker from database or fallback
+  const worker = db.getWorkerById(workerId) || INITIAL_WORKERS.find((w) => w.id === workerId) || INITIAL_WORKERS[0];
 
   const [shareSuccess, setShareSuccess] = useState(false);
   const [downloading, setDownloading] = useState(false);
@@ -45,7 +48,7 @@ export default function PublicPassportPage() {
       try {
         await navigator.share({
           title: `${worker.name}'s Verified SkillPassport`,
-          text: `Check out ${worker.name}'s verified credential on Credify`,
+          text: `Check out ${worker.name}'s verified credential on Credify (Trust Score: ${worker.trustScore}/100)`,
           url: publicUrl,
         });
       } catch {}
@@ -56,38 +59,40 @@ export default function PublicPassportPage() {
     }
   };
 
-  const handleDownloadPDF = () => {
+  const handleDownloadPDF = async () => {
     setDownloading(true);
     try {
-      const doc = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4',
-      });
-      doc.setFillColor(11, 42, 91);
-      doc.rect(0, 0, 210, 50, 'F');
-      doc.setTextColor(255, 255, 255);
-      doc.setFontSize(22);
-      doc.text('Credify SkillPassport', 20, 25);
-      doc.setFontSize(12);
-      doc.setTextColor(244, 123, 32);
-      doc.text('Your Skills. Our Recognition. — Verified National Credential', 20, 35);
-      doc.setTextColor(15, 27, 51);
-      doc.setFontSize(18);
-      doc.text(worker.name, 20, 65);
-      doc.setFontSize(12);
-      doc.setTextColor(91, 107, 132);
-      doc.text(`${worker.trade} • ${worker.locality}, Bengaluru`, 20, 73);
-      doc.save(`SkillPassport_${worker.name.replace(/\s+/g, '_')}.pdf`);
-    } catch {}
-    setDownloading(false);
+      await generateSkillPassportPDF(worker, publicUrl);
+    } catch (err) {
+      console.error('Error generating SkillPassport PDF:', err);
+    } finally {
+      setDownloading(false);
+    }
   };
 
   return (
     <div className="min-h-screen bg-canvas">
-      {/* Top Header */}
+      {/* Top Header with Physical Back Button (Requirement 7) */}
       <header className="bg-white border-b border-slate-200 px-4 md:px-12 py-3.5 flex items-center justify-between sticky top-0 z-30">
-        <Logo size="md" href="/" />
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => {
+              if (window.history.length > 1) {
+                router.back();
+              } else {
+                router.push('/employer');
+              }
+            }}
+            className="w-9 h-9 rounded-full flex items-center justify-center bg-slate-100 hover:bg-slate-200 text-navy-primary transition-colors border border-slate-200"
+            title="Go back"
+            aria-label="Back to previous page"
+          >
+            <ArrowLeft className="w-5 h-5 stroke-[2.5]" />
+          </button>
+          <Logo size="md" href="/" />
+        </div>
+
         <div className="flex items-center gap-3">
           <SpeakerButton textToRead={audioText} size="md" />
           <Button href="/employer" variant="outline" size="sm" className="hidden sm:inline-flex">

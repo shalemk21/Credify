@@ -11,14 +11,15 @@ import {
   Send,
   BarChart3,
   Settings,
-  Bell,
   Menu,
   X,
   ExternalLink,
   ShieldCheck,
-  Building2
+  Building2,
+  Smartphone
 } from 'lucide-react';
 import { Logo } from '@/components/shared/Logo';
+import { NotificationCenter } from '@/components/shared/NotificationCenter';
 
 interface EmployerShellProps {
   children: React.ReactNode;
@@ -84,17 +85,35 @@ export const EmployerShell: React.FC<EmployerShellProps> = ({ children }) => {
           </nav>
         </div>
 
-        {/* Bottom User Profile Chip (matches ABC Contractors in Screen 5) */}
-        <div className="p-4 border-t border-white/10">
+        {/* Bottom User Profile & Cross-Portal Links */}
+        <div className="p-4 border-t border-white/10 space-y-2">
+          {/* Cross Portal Mobile Switcher Links (Requirement 1) */}
           <Link
             href="/worker"
-            className="flex items-center justify-between p-2 mb-3 rounded-lg bg-white/5 hover:bg-white/10 text-xs text-orange font-bold transition-colors"
+            onClick={() => setMobileMenuOpen(false)}
+            className="flex items-center justify-between p-2.5 rounded-xl bg-orange-light/10 hover:bg-orange-light/20 text-xs text-orange font-bold transition-colors border border-orange/20"
           >
-            <span>Switch to Worker PWA</span>
+            <div className="flex items-center gap-2">
+              <Smartphone className="w-4 h-4" />
+              <span>👷 Switch to Worker PWA</span>
+            </div>
             <ExternalLink className="w-3.5 h-3.5" />
           </Link>
 
-          <div className="flex items-center gap-3 bg-white/10 p-2.5 rounded-xl border border-white/5">
+          <Link
+            href="/admin"
+            onClick={() => setMobileMenuOpen(false)}
+            className="flex items-center justify-between p-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-xs text-blue-200 font-bold transition-colors border border-white/10"
+          >
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="w-4 h-4 text-green" />
+              <span>🛡️ Admin Controls</span>
+            </div>
+            <ExternalLink className="w-3.5 h-3.5" />
+          </Link>
+
+          {/* Business Profile Chip */}
+          <div className="flex items-center gap-3 bg-white/10 p-2.5 rounded-xl border border-white/5 mt-2">
             <div className="w-8 h-8 rounded-full bg-orange/20 border border-orange/40 text-orange flex items-center justify-center font-bold text-xs shrink-0">
               AB
             </div>
@@ -109,7 +128,7 @@ export const EmployerShell: React.FC<EmployerShellProps> = ({ children }) => {
       {/* Main Content Area */}
       <div className="flex-1 md:ml-64 flex flex-col min-h-screen">
         
-        {/* Top Header (matches Screen 5 in showcase) */}
+        {/* Top Header */}
         <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200/80 px-4 md:px-8 py-3.5 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
@@ -125,7 +144,7 @@ export const EmployerShell: React.FC<EmployerShellProps> = ({ children }) => {
                 Employer Dashboard
               </h1>
               <p className="text-xs text-content-secondary hidden sm:block">
-                Find verified and trusted talent
+                Find verified and trusted talent in Bengaluru
               </p>
             </div>
           </div>
@@ -133,19 +152,22 @@ export const EmployerShell: React.FC<EmployerShellProps> = ({ children }) => {
           <div className="flex items-center gap-3 md:gap-4">
             <Link
               href="/admin"
-              className="hidden sm:inline-flex text-[11px] font-bold text-navy-primary/70 hover:text-navy-primary bg-slate-100 px-2.5 py-1 rounded-full border border-slate-200"
+              className="hidden sm:inline-flex items-center gap-1.5 text-xs font-bold text-navy-primary/80 hover:text-navy-primary bg-slate-100 px-3 py-1.5 rounded-full border border-slate-200 transition-colors"
             >
-              Admin Controls
+              <ShieldCheck className="w-3.5 h-3.5 text-green" />
+              <span>Admin Controls</span>
             </Link>
 
-            <button
-              type="button"
-              className="relative p-2 text-slate-500 hover:text-navy-primary rounded-full hover:bg-slate-100 transition-colors"
-              aria-label="Notifications"
+            <Link
+              href="/worker"
+              className="hidden sm:inline-flex items-center gap-1.5 text-xs font-bold text-orange bg-orange-light/30 px-3 py-1.5 rounded-full border border-orange/20 hover:bg-orange-light/50 transition-colors"
             >
-              <Bell className="w-5 h-5" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-orange rounded-full ring-2 ring-white"></span>
-            </button>
+              <Smartphone className="w-3.5 h-3.5" />
+              <span>Worker PWA</span>
+            </Link>
+
+            {/* Working Interactive Notification Center (Requirement 4) */}
+            <NotificationCenter align="right" />
 
             <div className="w-8 h-8 rounded-full bg-navy-primary text-white flex items-center justify-center text-xs font-bold ring-2 ring-slate-100">
               AB

@@ -9,7 +9,7 @@ import { Button } from '@/components/shared/Button';
 import { SpeakerButton } from '@/components/shared/SpeakerButton';
 import { INITIAL_WORKERS, db } from '@/lib/db';
 import { calculateTrustScore } from '@/lib/trust';
-import { ThumbsUp, ThumbsDown, CheckCircle2, ShieldCheck, ArrowRight, Star } from 'lucide-react';
+import { ThumbsUp, ThumbsDown, CheckCircle2, ShieldCheck, ArrowRight, Star, ArrowLeft } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 export default function VouchFlowPage() {
@@ -65,6 +65,12 @@ export default function VouchFlowPage() {
     });
 
     setNewTrustScore(res.totalScore);
+    db.updateWorker(worker.id, {
+      vouches: updatedVouches,
+      trustScore: res.totalScore,
+      badgeLevel: res.badgeLevel,
+    });
+
     setStep('success');
 
     try {
@@ -78,9 +84,18 @@ export default function VouchFlowPage() {
 
   return (
     <div className="min-h-screen bg-canvas flex flex-col justify-between py-6 px-4">
-      {/* Top Header */}
+      {/* Top Header with Physical Back Button (Requirement 7) */}
       <div className="max-w-md mx-auto w-full flex items-center justify-between mb-4">
-        <Logo size="sm" showProduct={true} href="/" />
+        <div className="flex items-center gap-2.5">
+          <Link
+            href="/"
+            className="w-8 h-8 rounded-full flex items-center justify-center bg-white border border-slate-200 hover:bg-slate-50 text-navy-primary shadow-xs transition-colors"
+            title="Return to Home"
+          >
+            <ArrowLeft className="w-4 h-4 stroke-[2.5]" />
+          </Link>
+          <Logo size="sm" showProduct={true} href="/" />
+        </div>
         <SpeakerButton
           textToRead={`Vouch for ${worker.name}. Did this person do this work for you? Rate their work and submit.`}
           size="md"
@@ -90,7 +105,7 @@ export default function VouchFlowPage() {
       {/* Vouch Card (Centered max-w-md, matches Screen 7 in showcase image) */}
       <div className="max-w-md mx-auto w-full bg-white rounded-3xl p-6 border border-slate-200/90 shadow-card space-y-5">
         
-        {/* Worker Profile Header (Matches Screen 7) */}
+        {/* Worker Profile Header */}
         <div className="text-center space-y-2">
           <div className="relative inline-block">
             <img
@@ -116,7 +131,7 @@ export default function VouchFlowPage() {
         {step === 'form' && (
           <form onSubmit={handleSubmitVouch} className="space-y-4">
             
-            {/* Question: Did this person do this work for you? (Matches Screen 7) */}
+            {/* Question: Did this person do this work for you? */}
             <div className="bg-slate-50/70 p-4 rounded-2xl border border-slate-100 text-center space-y-3">
               <p className="text-xs font-bold text-navy-primary">
                 Did this person do this work for you?
@@ -152,7 +167,7 @@ export default function VouchFlowPage() {
 
             {didWork && (
               <>
-                {/* 5 Orange Stars Rating (Matches Screen 7) */}
+                {/* 5 Orange Stars Rating */}
                 <div className="text-center space-y-2 py-1">
                   <p className="text-xs font-bold text-navy-primary">Rate their work</p>
                   <div className="flex justify-center">
@@ -160,7 +175,7 @@ export default function VouchFlowPage() {
                   </div>
                 </div>
 
-                {/* Optional Comment Box (Matches Screen 7) */}
+                {/* Optional Comment Box */}
                 <div>
                   <textarea
                     rows={3}
@@ -195,7 +210,7 @@ export default function VouchFlowPage() {
               </>
             )}
 
-            {/* Bottom Navy Submit Button (Matches Screen 7) */}
+            {/* Bottom Navy Submit Button */}
             <Button
               type="submit"
               variant="primary"
@@ -208,7 +223,7 @@ export default function VouchFlowPage() {
           </form>
         )}
 
-        {/* OTP Step (Anti-fraud safeguard) */}
+        {/* OTP Step */}
         {step === 'otp' && (
           <div className="space-y-4 text-center py-2">
             <div className="w-12 h-12 rounded-full bg-blue-50 text-navy-primary mx-auto flex items-center justify-center">

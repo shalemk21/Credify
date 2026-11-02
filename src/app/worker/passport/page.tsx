@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { PhoneFrame } from '@/components/worker/PhoneFrame';
 import { Logo } from '@/components/shared/Logo';
@@ -12,13 +12,21 @@ import { EvidenceGallery } from '@/components/shared/EvidenceGallery';
 import { SpeakerButton } from '@/components/shared/SpeakerButton';
 import { Button } from '@/components/shared/Button';
 import { useI18n } from '@/lib/i18n';
-import { INITIAL_WORKERS } from '@/lib/db';
+import { INITIAL_WORKERS, db } from '@/lib/db';
+import { generateSkillPassportPDF } from '@/lib/pdf';
 import { Share2, Download, ShieldCheck, CheckCircle2, UserPlus, ExternalLink } from 'lucide-react';
-import jsPDF from 'jspdf';
 
 export default function WorkerPassportPage() {
   const { t, locale } = useI18n();
-  const worker = INITIAL_WORKERS[0]; // Ramesh K. (matches showcase visual)
+  // Get active worker from DB (defaults to Ramesh K.)
+  const [worker, setWorker] = useState(INITIAL_WORKERS[0]);
+
+  useEffect(() => {
+    const workers = db.getWorkers();
+    if (workers.length > 0) {
+      setWorker(workers[0]);
+    }
+  }, []);
 
   const [shareSuccess, setShareSuccess] = useState(false);
   const [downloading, setDownloading] = useState(false);
@@ -49,68 +57,10 @@ export default function WorkerPassportPage() {
     }
   };
 
-  const handleDownloadPDF = () => {
+  const handleDownloadPDF = async () => {
     setDownloading(true);
     try {
-      const doc = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4',
-      });
-
-      // Background header
-      doc.setFillColor(11, 42, 91); // Primary navy
-      doc.rect(0, 0, 210, 50, 'F');
-
-      // Title
-      doc.setTextColor(255, 255, 255);
-      doc.setFontSize(22);
-      doc.text('Credify SkillPassport', 20, 25);
-      doc.setFontSize(12);
-      doc.setTextColor(244, 123, 32); // Orange
-      doc.text('Your Skills. Our Recognition. — Verified National Credential', 20, 35);
-
-      // Body Details
-      doc.setTextColor(15, 27, 51);
-      doc.setFontSize(18);
-      doc.text(worker.name, 20, 65);
-      doc.setFontSize(12);
-      doc.setTextColor(91, 107, 132);
-      doc.text(`${worker.trade} • ${worker.locality}, Bengaluru`, 20, 73);
-
-      // Scores
-      doc.setFontSize(14);
-      doc.setTextColor(46, 158, 91);
-      doc.text(`Trust Score: ${worker.trustScore}/100 (Gold Tier)`, 20, 88);
-      doc.setTextColor(15, 27, 51);
-      doc.text(`Experience: ${worker.yearsOfExperience} Years | Vouches: ${worker.vouches.length} Verified`, 20, 96);
-
-      // Verified Skills
-      doc.setFontSize(12);
-      doc.text('Verified Skills:', 20, 110);
-      doc.setFontSize(11);
-      doc.setTextColor(46, 158, 91);
-      doc.text(worker.verifiedSkills.join(', '), 20, 118);
-
-      // Vouches summary
-      doc.setTextColor(15, 27, 51);
-      doc.setFontSize(12);
-      doc.text('Vouch Endorsements:', 20, 135);
-      doc.setFontSize(10);
-      doc.setTextColor(91, 107, 132);
-      let yPos = 145;
-      worker.vouches.forEach((v) => {
-        doc.text(`• ${v.vouchedByName} (${v.role}): "${v.comment}"`, 20, yPos);
-        yPos += 10;
-      });
-
-      // Verification footer
-      doc.setFontSize(10);
-      doc.setTextColor(100, 116, 139);
-      doc.text(`Public Verification Link: ${publicUrl}`, 20, 270);
-      doc.text('Powered by Credify Trust Layer — Government DPDP Act Compliant', 20, 276);
-
-      doc.save(`SkillPassport_${worker.name.replace(/\s+/g, '_')}.pdf`);
+      await generateSkillPassportPDF(worker, publicUrl);
     } catch (err) {
       console.error('PDF generation error:', err);
     } finally {
@@ -119,15 +69,14 @@ export default function WorkerPassportPage() {
   };
 
   return (
-    <PhoneFrame showBottomNav={true}>
+    <PhoneFrame showBottomNav={true} backHref="/worker">
       <div className="p-4 space-y-4">
         
         {/* Skill Passport Main Card (Matches Screen 6 in showcase) */}
         <div className="bg-white rounded-3xl overflow-hidden border border-slate-200/90 shadow-card">
           
-          {/* Navy Top Card Header with Orange Swoosh (Matches Screen 6) */}
+          {/* Navy Top Card Header with Orange Swoosh */}
           <div className="bg-navy-primary p-4 pb-14 text-white relative overflow-hidden">
-            {/* Orange swoosh curve */}
             <div className="absolute -bottom-8 -right-8 w-40 h-40 bg-orange/90 rounded-full blur-xs" />
             <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full" />
 
@@ -158,7 +107,7 @@ export default function WorkerPassportPage() {
                 )}
               </div>
 
-              {/* Gold Badge Pill */}
+              {/* Tier Badge Pill */}
               <div className="mb-2">
                 <BadgeLevel level={worker.badgeLevel} size="md" />
               </div>
@@ -174,7 +123,7 @@ export default function WorkerPassportPage() {
               </p>
             </div>
 
-            {/* Three Key Stat Columns & QR Code (Matches Screen 6 in Showcase) */}
+            {/* Three Key Stat Columns & QR Code */}
             <div className="grid grid-cols-12 gap-3 my-4 py-3 border-y border-slate-100 items-center">
               
               {/* TrustRing */}
@@ -202,7 +151,7 @@ export default function WorkerPassportPage() {
                 </div>
               </div>
 
-              {/* Large QR Code on Right (Matches Screen 6 in Showcase) */}
+              {/* Large QR Code on Right */}
               <div className="col-span-4 flex justify-center">
                 <QRCard url={publicUrl} size={72} label="Scan to Verify" />
               </div>
@@ -246,7 +195,7 @@ export default function WorkerPassportPage() {
                 size="md"
                 loading={downloading}
                 icon={<Download className="w-4 h-4" />}
-                className="font-bold text-xs"
+                className="font-bold text-xs shadow-button"
               >
                 {t.screen6.downloadPdf}
               </Button>
@@ -268,7 +217,7 @@ export default function WorkerPassportPage() {
           <EvidenceGallery items={worker.evidence} showPreview={false} />
         </div>
 
-        {/* Get Vouched CTA Card (Matches Section 6 #6) */}
+        {/* Get Vouched CTA Card */}
         <div className="bg-gradient-to-r from-navy-primary to-navy-light text-white rounded-3xl p-4 flex items-center justify-between shadow-button-navy">
           <div>
             <h4 className="text-xs font-bold">Request a Client Vouch</h4>

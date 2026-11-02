@@ -28,7 +28,7 @@ export default function WorkerJobsPage() {
   };
 
   return (
-    <PhoneFrame showBottomNav={true}>
+    <PhoneFrame showBottomNav={true} backHref="/worker">
       <div className="p-4 space-y-4">
         
         {/* Top Header */}

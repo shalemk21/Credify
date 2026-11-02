@@ -1,11 +1,12 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { EmployerShell } from '@/components/employer/EmployerShell';
 import { Button } from '@/components/shared/Button';
 import { INITIAL_JOB_REQUESTS, INITIAL_WORKERS } from '@/lib/db';
 import { JobRequest, Trade, BengaluruLocality } from '@/types';
-import { Plus, CheckCircle2, Clock, Send, MapPin, AlertCircle } from 'lucide-react';
+import { Plus, CheckCircle2, Clock, Send, MapPin, AlertCircle, ArrowLeft } from 'lucide-react';
 
 export default function HireRequestsPage() {
   const [jobs, setJobs] = useState<JobRequest[]>(INITIAL_JOB_REQUESTS);
@@ -45,14 +46,24 @@ export default function HireRequestsPage() {
   return (
     <EmployerShell>
       <div className="space-y-6">
+        {/* Top Header with Physical Back Button (Requirement 7) */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div>
-            <h1 className="text-xl font-black text-navy-primary tracking-tight">
-              Hire Requests & Site Job Openings
-            </h1>
-            <p className="text-xs text-content-secondary">
-              Directly broadcast opportunities to verified local talent in Bengaluru
-            </p>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/employer"
+              className="w-9 h-9 rounded-full flex items-center justify-center bg-white border border-slate-200 hover:bg-slate-50 text-navy-primary shadow-xs transition-colors shrink-0"
+              title="Return to Dashboard"
+            >
+              <ArrowLeft className="w-5 h-5 stroke-[2.5]" />
+            </Link>
+            <div>
+              <h1 className="text-xl font-black text-navy-primary tracking-tight">
+                Hire Requests & Site Job Openings
+              </h1>
+              <p className="text-xs text-content-secondary">
+                Directly broadcast opportunities to verified local talent in Bengaluru
+              </p>
+            </div>
           </div>
           <Button
             onClick={() => setShowCreateModal(true)}
@@ -64,105 +75,109 @@ export default function HireRequestsPage() {
           </Button>
         </div>
 
-        {/* Job Requests List */}
-        <div className="space-y-4">
+        {/* Jobs list */}
+        <div className="grid grid-cols-1 gap-4">
           {jobs.map((job) => (
             <div
               key={job.id}
-              className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm space-y-4"
+              className="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-sm space-y-4"
             >
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-100">
-                <div className="flex items-center gap-3">
-                  <span className="px-3 py-1 rounded-full text-xs font-bold bg-navy-primary/10 text-navy-primary">
-                    {job.trade}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+                <div className="flex items-center gap-2.5">
+                  <span className="text-lg">
+                    {job.trade === 'ELECTRICIAN' ? '⚡' : '🔧'}
                   </span>
-                  <span className="text-xs font-semibold text-slate-500 flex items-center gap-1">
+                  <div>
+                    <h3 className="text-base font-extrabold text-navy-primary">
+                      {job.requiredWorkers}x {job.trade === 'ELECTRICIAN' ? 'Electricians' : 'Plumbers'} Needed
+                    </h3>
+                    <p className="text-xs text-slate-400">
+                      Posted by {job.employerName} • {job.createdAt}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <span
+                    className={`px-3 py-1 rounded-full text-[11px] font-bold ${
+                      job.status === 'open'
+                        ? 'bg-green-tint text-green-dark border border-green/30'
+                        : 'bg-slate-100 text-slate-500'
+                    }`}
+                  >
+                    {job.status === 'open' ? 'Active Broadcast' : 'Fulfilled'}
+                  </span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs bg-slate-50 p-3 rounded-2xl">
+                <div>
+                  <span className="text-slate-400 block font-medium">Site Locality</span>
+                  <span className="font-bold text-navy-primary flex items-center gap-1 mt-0.5">
                     <MapPin className="w-3.5 h-3.5 text-orange" />
                     {job.locality}
                   </span>
                 </div>
-                <div className="flex items-center gap-2 text-xs">
-                  <span className="text-slate-400">Duration:</span>
-                  <span className="font-bold text-navy-primary">{job.duration}</span>
-                  <span className="text-slate-300">•</span>
-                  <span className="text-slate-400">Daily Wage:</span>
-                  <span className="font-extrabold text-green-dark">₹{job.dailyWageOffer}/day</span>
+                <div>
+                  <span className="text-slate-400 block font-medium">Contract Duration</span>
+                  <span className="font-bold text-navy-primary block mt-0.5">
+                    {job.duration}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-slate-400 block font-medium">Daily Wage Offer</span>
+                  <span className="font-bold text-navy-primary block mt-0.5">
+                    ₹{job.dailyWageOffer} / day
+                  </span>
+                </div>
+                <div>
+                  <span className="text-slate-400 block font-medium">Dispatched To</span>
+                  <span className="font-bold text-navy-primary block mt-0.5">
+                    {job.responses.length} Candidates
+                  </span>
                 </div>
               </div>
 
-              <div>
-                <p className="text-xs text-content-primary leading-relaxed font-medium">
-                  {job.description}
-                </p>
-              </div>
+              <p className="text-xs text-content-primary leading-relaxed font-medium">
+                {job.description}
+              </p>
 
-              {/* Worker Responses Section */}
-              <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-100">
-                <h4 className="text-xs font-bold text-navy-primary mb-2 flex items-center justify-between">
-                  <span>Candidate Responses ({job.responses.length})</span>
-                  <span className="text-[10px] text-slate-400 font-normal">Updated live from Worker PWA</span>
-                </h4>
-
-                <div className="space-y-2">
-                  {job.responses.map((resp, i) => {
-                    const worker = INITIAL_WORKERS.find((w) => w.id === resp.workerId);
-                    return (
-                      <div
-                        key={i}
-                        className="flex items-center justify-between text-xs bg-white p-2.5 rounded-lg border border-slate-200"
-                      >
-                        <div className="flex items-center gap-2.5">
-                          {worker && (
-                            <img
-                              src={worker.avatarUrl}
-                              alt={worker.name}
-                              className="w-7 h-7 rounded-full object-cover"
-                            />
-                          )}
-                          <div>
-                            <span className="font-bold text-navy-primary">{worker?.name || 'Worker'}</span>
-                            <span className="text-slate-400 text-[11px] ml-1.5 font-medium">
-                              ({worker?.badgeLevel} {worker?.trade})
-                            </span>
-                          </div>
-                        </div>
-
-                        <div>
-                          {resp.status === 'accepted' ? (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-green-tint text-green-dark">
-                              <CheckCircle2 className="w-3.5 h-3.5 text-green" />
-                              Accepted Job
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-700">
-                              <Clock className="w-3.5 h-3.5 text-amber-500" />
-                              Awaiting Worker Response
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
+              {/* Worker response status chip */}
+              <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
+                <div className="flex items-center gap-2">
+                  <span className="text-slate-500 font-semibold">Matched Worker:</span>
+                  <span className="font-bold text-navy-primary">Ramesh K.</span>
+                  <span className="text-[10px] font-bold bg-orange-light text-orange px-2 py-0.5 rounded-full flex items-center gap-1">
+                    <Clock className="w-3 h-3" />
+                    Offer Dispatched
+                  </span>
                 </div>
+
+                <Link
+                  href="/worker/jobs"
+                  className="text-xs font-bold text-orange hover:underline flex items-center gap-1"
+                >
+                  <span>View Worker View →</span>
+                </Link>
               </div>
             </div>
           ))}
         </div>
 
-        {/* Modal: Post New Job Request */}
+        {/* Create Modal */}
         {showCreateModal && (
           <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
             <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-4">
               <h3 className="text-lg font-black text-navy-primary">
-                Broadcast Job Request
+                Post Site Job Broadcast
               </h3>
-              <form onSubmit={handleCreateJob} className="space-y-3.5 text-xs font-semibold text-navy-primary">
+              <form onSubmit={handleCreateJob} className="space-y-3 text-xs font-semibold">
                 <div>
                   <label className="block mb-1 text-slate-500">Trade Required</label>
                   <select
                     value={trade}
                     onChange={(e) => setTrade(e.target.value as Trade)}
-                    className="w-full p-2.5 rounded-xl border border-slate-200 bg-slate-50 font-bold"
+                    className="w-full p-2.5 rounded-xl border border-slate-200 font-bold"
                   >
                     <option value="ELECTRICIAN">Electrician</option>
                     <option value="PLUMBER">Plumber</option>
@@ -170,11 +185,11 @@ export default function HireRequestsPage() {
                 </div>
 
                 <div>
-                  <label className="block mb-1 text-slate-500">Locality in Bengaluru</label>
+                  <label className="block mb-1 text-slate-500">Bengaluru Locality</label>
                   <select
                     value={locality}
                     onChange={(e) => setLocality(e.target.value as BengaluruLocality)}
-                    className="w-full p-2.5 rounded-xl border border-slate-200 bg-slate-50 font-bold"
+                    className="w-full p-2.5 rounded-xl border border-slate-200 font-bold"
                   >
                     <option value="Whitefield">Whitefield</option>
                     <option value="Koramangala">Koramangala</option>
@@ -187,43 +202,45 @@ export default function HireRequestsPage() {
 
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <label className="block mb-1 text-slate-500">Workers Needed</label>
+                    <label className="block mb-1 text-slate-500">Number of Workers</label>
                     <input
                       type="number"
+                      min="1"
                       value={requiredWorkers}
                       onChange={(e) => setRequiredWorkers(e.target.value)}
-                      className="w-full p-2.5 rounded-xl border border-slate-200 bg-slate-50 font-bold"
+                      className="w-full p-2.5 rounded-xl border border-slate-200 font-bold"
                     />
                   </div>
                   <div>
-                    <label className="block mb-1 text-slate-500">Duration</label>
+                    <label className="block mb-1 text-slate-500">Daily Wage (₹)</label>
                     <input
-                      type="text"
-                      value={duration}
-                      onChange={(e) => setDuration(e.target.value)}
-                      className="w-full p-2.5 rounded-xl border border-slate-200 bg-slate-50 font-bold"
+                      type="number"
+                      value={dailyWage}
+                      onChange={(e) => setDailyWage(e.target.value)}
+                      className="w-full p-2.5 rounded-xl border border-slate-200 font-bold"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block mb-1 text-slate-500">Daily Wage (₹)</label>
+                  <label className="block mb-1 text-slate-500">Duration</label>
                   <input
-                    type="number"
-                    value={dailyWage}
-                    onChange={(e) => setDailyWage(e.target.value)}
-                    className="w-full p-2.5 rounded-xl border border-slate-200 bg-slate-50 font-bold"
+                    type="text"
+                    value={duration}
+                    onChange={(e) => setDuration(e.target.value)}
+                    placeholder="e.g. 3 Days or 1 Month"
+                    className="w-full p-2.5 rounded-xl border border-slate-200 font-bold"
                   />
                 </div>
 
                 <div>
-                  <label className="block mb-1 text-slate-500">Job Description</label>
+                  <label className="block mb-1 text-slate-500">Description / Scope of Work</label>
                   <textarea
                     rows={3}
-                    placeholder="Describe specific work (e.g. conduit wiring, bathroom fittings)..."
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
-                    className="w-full p-2.5 rounded-xl border border-slate-200 bg-slate-50 font-medium"
+                    placeholder="Detail the site requirements..."
+                    className="w-full p-2.5 rounded-xl border border-slate-200 font-medium resize-none"
                   />
                 </div>
 
@@ -241,13 +258,14 @@ export default function HireRequestsPage() {
                     variant="orange"
                     className="flex-1 font-bold"
                   >
-                    Post Request
+                    Broadcast Request
                   </Button>
                 </div>
               </form>
             </div>
           </div>
         )}
+
       </div>
     </EmployerShell>
   );

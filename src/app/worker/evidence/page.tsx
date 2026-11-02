@@ -15,7 +15,8 @@ import { Upload, Camera, CheckCircle2, ShieldCheck, MapPin, ArrowRight, WifiOff,
 export default function WorkEvidencePage() {
   const router = useRouter();
   const { t, locale } = useI18n();
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const uploadInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
 
   const [evidenceList, setEvidenceList] = useState<WorkEvidence[]>([
     {
@@ -72,7 +73,7 @@ export default function WorkEvidencePage() {
       const newItem: WorkEvidence = {
         id: 'ev-' + Date.now(),
         workerId: 'worker-demo',
-        title: file.name.replace(/\.[^/.]+$/, ''),
+        title: file.name ? file.name.replace(/\.[^/.]+$/, '') : 'Work Evidence Photo',
         mediaUrl: dataUrl,
         thumbnailUrl: dataUrl,
         type: file.type.startsWith('video') ? 'video' : 'photo',
@@ -98,6 +99,8 @@ export default function WorkEvidencePage() {
       setTimeout(() => setOfflineToast(''), 4000);
     };
     reader.readAsDataURL(file);
+    // Reset inputs so same file or retake can be uploaded again
+    e.target.value = '';
   };
 
   const handleNext = () => {
@@ -151,17 +154,28 @@ export default function WorkEvidencePage() {
           </div>
         )}
 
-        {/* Evidence Gallery Component (Matches Phone 4 in Showcase) */}
+        {/* Evidence Gallery Component */}
         <div className="bg-white rounded-3xl p-4 border border-slate-200 shadow-sm">
           <EvidenceGallery items={evidenceList} showPreview={true} />
         </div>
 
-        {/* Action Buttons: Upload (Navy) & Take Photo (Outline) */}
+        {/* Action Buttons: Upload (Navy) & Take Photo (Outline) - Separated camera vs media */}
         <div className="space-y-2.5">
+          {/* File Picker input for media files */}
           <input
             type="file"
             accept="image/*,video/*"
-            ref={fileInputRef}
+            ref={uploadInputRef}
+            onChange={handleFileUpload}
+            className="hidden"
+          />
+
+          {/* Camera input with environment capture for rear phone camera */}
+          <input
+            type="file"
+            accept="image/*"
+            capture="environment"
+            ref={cameraInputRef}
             onChange={handleFileUpload}
             className="hidden"
           />
@@ -169,7 +183,7 @@ export default function WorkEvidencePage() {
           <div className="grid grid-cols-2 gap-3">
             <Button
               type="button"
-              onClick={() => fileInputRef.current?.click()}
+              onClick={() => uploadInputRef.current?.click()}
               variant="primary"
               size="lg"
               icon={<Upload className="w-4 h-4" />}
@@ -180,11 +194,11 @@ export default function WorkEvidencePage() {
 
             <Button
               type="button"
-              onClick={() => fileInputRef.current?.click()}
+              onClick={() => cameraInputRef.current?.click()}
               variant="outline"
               size="lg"
-              icon={<Camera className="w-4 h-4" />}
-              className="font-bold bg-white"
+              icon={<Camera className="w-4 h-4 text-orange" />}
+              className="font-bold bg-white border-2 hover:border-orange/50"
             >
               {t.screen4.takePhoto}
             </Button>
@@ -196,7 +210,7 @@ export default function WorkEvidencePage() {
             variant="orange"
             fullWidth
             size="lg"
-            className="font-bold flex items-center justify-center gap-2 mt-2"
+            className="font-bold flex items-center justify-center gap-2 mt-2 shadow-button"
           >
             <span>Proceed to Skill Check</span>
             <ArrowRight className="w-5 h-5" />

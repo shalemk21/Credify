@@ -33,7 +33,7 @@ export default function GrowthPlanPage() {
     : 'Your Growth Plan. Next skill to learn: Advanced Inverter Diagnostics. Potential wage uplift: 20 to 30 percent.';
 
   return (
-    <PhoneFrame showBottomNav={true}>
+    <PhoneFrame showBottomNav={true} backHref="/worker">
       <div className="p-4 space-y-4">
         
         {/* Top Header with Growth Icon (Matches Screen 8 in showcase) */}

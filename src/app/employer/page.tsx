@@ -49,6 +49,15 @@ export default function EmployerDashboardPage() {
   const [hireDuration, setHireDuration] = useState('3 Days');
   const [hireDailyWage, setHireDailyWage] = useState('1200');
   const [hireSentSuccess, setHireSentSuccess] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
+
+  const handleSearch = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    setIsSearching(true);
+    const el = document.getElementById('candidates-list');
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+    setTimeout(() => setIsSearching(false), 300);
+  };
 
   // Filter and rank workers
   const rankedWorkers = useMemo(() => {

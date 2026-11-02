@@ -65,6 +65,7 @@ export interface WorkerProfile {
   yearsOfExperience: number;
   languages: ('English' | 'हिन्दी' | 'ಕನ್ನಡ')[];
   availability: 'today' | 'this_week' | 'not_looking';
+  status?: 'active' | 'flagged' | 'suspended';
   
   // Skill declarations
   declaredSkills: string[];
@@ -99,27 +100,29 @@ export interface WorkerProfile {
   updatedAt: string;
 }
 
+export interface MatchFactors {
+  trade: Trade;
+  employerLocality: BengaluruLocality;
+  minExperienceYears: number;
+  minTrustScore: number;
+  requiredSkills?: string[];
+  languagePreference?: ('English' | 'हिन्दी' | 'ಕನ್ನಡ')[];
+}
+
 export interface MatchFactorBreakdown {
-  skillsMatch: number;      // 0-100
-  experienceMatch: number;  // 0-100
-  locationMatch: number;    // 0-100
-  trustScoreMatch: number;  // 0-100
-  availabilityScore: number;
-  languageBonus: number;
-  overallMatchScore: number;// 0-100
+  overallMatchScore: number; // 0-100
+  skillsMatch: number; // 0-100
+  experienceMatch: number; // 0-100
+  locationMatch: number; // 0-100
+  trustScoreMatch: number; // 0-100
+  availabilityScore: number; // 0-100
+  languageBonus: number; // 0-10
   distanceKm: number;
   oneLineExplanation: string;
   verifiedSummary: string;
 }
 
-export interface EmployerProfile {
-  id: string;
-  companyName: string;
-  contactPerson: string;
-  type: 'contractor' | 'factory' | 'homeowner';
-  locality: BengaluruLocality;
-  shortlistedWorkerIds: string[];
-}
+export type MatchScoreResult = MatchFactorBreakdown;
 
 export interface JobRequest {
   id: string;
@@ -132,7 +135,7 @@ export interface JobRequest {
   dailyWageOffer: number;
   description: string;
   createdAt: string;
-  status: 'open' | 'fulfilled' | 'closed';
+  status: 'open' | 'in_progress' | 'fulfilled';
   responses: {
     workerId: string;
     status: 'accepted' | 'declined' | 'pending';
@@ -140,11 +143,30 @@ export interface JobRequest {
   }[];
 }
 
+export interface EmployerProfile {
+  id: string;
+  companyName: string;
+  contactPerson?: string;
+  type?: 'contractor' | 'builder' | 'individual' | string;
+  shortlistedWorkerIds?: string[];
+  gstin?: string;
+  locality: BengaluruLocality;
+  phone?: string;
+  rating?: number;
+  verified?: boolean;
+  activeJobs?: number;
+  totalHires?: number;
+}
+
 export interface WageEstimate {
   trade: Trade;
   level: BadgeLevel;
-  locality: BengaluruLocality;
+  locality?: string;
   minDailyWage: number;
   maxDailyWage: number;
   avgDailyWage: number;
+  potentialGrowthPct?: number;
+  minDaily?: number;
+  maxDaily?: number;
+  avgDaily?: number;
 }
