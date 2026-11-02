@@ -1,0 +1,108 @@
+{
+  "brand": "Credify",
+  "product": "SkillPassport",
+  "tagline": "Your Skills. Our Recognition.",
+  "heroHeadline": "The Invisible Workforce: Bridging the Gap Between Skills and Opportunities",
+  "heroSubtitle": "A trusted platform for electricians, plumbers and skilled workers to showcase their skills and get verified opportunities.",
+  "nav": {
+    "home": "Home",
+    "opportunities": "Opportunities",
+    "mission": "Our Mission",
+    "about": "About",
+    "login": "Login",
+    "getStarted": "Get Started",
+    "exploreTalent": "Explore Talent",
+    "forEmployers": "For Employers"
+  },
+  "stats": {
+    "talentsDiscovered": "2,450+ Talents Discovered",
+    "successfulMatches": "Successful Matches",
+    "trustedVerified": "Trusted & Verified",
+    "acrossIndia": "Across India"
+  },
+  "screen1": {
+    "title": "Welcome to SkillPassport",
+    "subtitle": "Choose your preferred language",
+    "chooseLanguage": "Choose Language",
+    "continue": "Continue"
+  },
+  "screen2": {
+    "title": "Verify Your Mobile",
+    "subtitle": "Enter your phone number",
+    "phoneLabel": "Phone Number",
+    "phonePlaceholder": "98765 43210",
+    "sendOtp": "Send OTP",
+    "demoOtpHelper": "Demo OTP: 1234",
+    "enterOtp": "Enter 4-digit OTP",
+    "verifyAndContinue": "Verify & Continue",
+    "nameLabel": "Your Full Name (optional)",
+    "namePlaceholder": "e.g. Ramesh Kumar"
+  },
+  "screen3": {
+    "title": "Tell Us What You Do",
+    "subtitle": "Tell us what you do",
+    "tapToSpeak": "Tap to Speak",
+    "orType": "or type below",
+    "transcriptPlaceholder": "e.g. I fix house wiring, fans and inverters for 8 years.",
+    "detectedSkills": "Detected Skills:",
+    "tapToRemove": "Tap to remove or tap below to add more:",
+    "next": "Next ->",
+    "listening": "Listening... speak now",
+    "stopListening": "Stop recording"
+  },
+  "screen4": {
+    "title": "Add Work Evidence",
+    "subtitle": "Upload photos or videos of your work",
+    "upload": "Upload",
+    "takePhoto": "Take Photo",
+    "sampleTitle": "Distribution Board Wiring & Inverter Setup",
+    "offlineNotice": "Offline evidence queued. Will sync automatically when online.",
+    "syncedNotice": "Evidence saved with timestamp & verified."
+  },
+  "screen5": {
+    "title": "Skill Check",
+    "subtitle": "5 visual scenario questions to prove your mastery",
+    "badgeEarned": "Badge Earned!",
+    "whatsMissing": "What to improve for next tier:",
+    "retry": "Try Assessment Again",
+    "continueToPassport": "View My Passport"
+  },
+  "screen6": {
+    "title": "Skill Passport",
+    "trustScore": "Trust Score",
+    "experience": "Experience",
+    "years": "Years",
+    "vouches": "Vouches",
+    "verifiedSkills": "Verified Skills",
+    "share": "Share",
+    "downloadPdf": "Download PDF",
+    "safetyAware": "Safety Aware Certified"
+  },
+  "screen7": {
+    "title": "Vouch for",
+    "subtitle": "Help build trust in our skilled workforce",
+    "question": "Did this person do this work for you?",
+    "yes": "Yes",
+    "no": "No",
+    "rateWork": "Rate their work",
+    "commentPlaceholder": "Add a comment (optional)...",
+    "submit": "Submit Vouch",
+    "success": "Thank you! Your vouch has increased their trust score."
+  },
+  "screen8": {
+    "title": "Your Growth Plan",
+    "nextSkill": "Next Skill to Learn",
+    "recommendedCourse": "View Recommended Course",
+    "potentialWageUplift": "Potential Wage Uplift: ~20-30%",
+    "transferableSkills": "Transferable Skills",
+    "wageEstimator": "Estimated Daily Wage Range",
+    "schemes": "Government Schemes for You"
+  },
+  "tabs": {
+    "home": "Home",
+    "evidence": "Evidence",
+    "passport": "Passport",
+    "jobs": "Jobs for you",
+    "growth": "Growth"
+  }
+}
