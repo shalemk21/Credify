@@ -792,7 +792,43 @@ export const INITIAL_EMPLOYERS: EmployerProfile[] = [
     contactPerson: 'Arun Bhat',
     type: 'contractor',
     locality: 'Whitefield',
+    phone: '+91 98450 11223',
+    email: 'employer@credify.in',
+    gstin: '29AABCA1234F1Z8',
+    verified: true,
+    status: 'APPROVED',
+    applicationDate: '2026-01-15',
+    approvedAt: '2026-01-16 10:30:00',
+    approvedBy: 'Dr. Sunita Rao (Credify Directorate)',
     shortlistedWorkerIds: ['worker-ramesh-k']
+  },
+  {
+    id: 'emp-sobha-infra',
+    companyName: 'Sobha Urban Infrastructure Pvt Ltd',
+    contactPerson: 'Rajesh Nair',
+    type: 'builder',
+    locality: 'HSR Layout',
+    phone: '+91 99450 55443',
+    email: 'hiring@sobhainfra.in',
+    gstin: '29AAECS5678B1Z2',
+    verified: false,
+    status: 'PENDING_APPROVAL',
+    applicationDate: '2026-11-05',
+    shortlistedWorkerIds: []
+  },
+  {
+    id: 'emp-prestige-elec',
+    companyName: 'Prestige Electricals & Renovations',
+    contactPerson: 'Karthik Somanna',
+    type: 'contractor',
+    locality: 'Indiranagar',
+    phone: '+91 97401 22334',
+    email: 'karthik@prestigeelec.in',
+    gstin: '29AAFPK9876C1Z4',
+    verified: false,
+    status: 'PENDING_APPROVAL',
+    applicationDate: '2026-11-07',
+    shortlistedWorkerIds: []
   }
 ];
 
@@ -809,6 +845,9 @@ export const INITIAL_JOB_REQUESTS: JobRequest[] = [
     description: 'Conduit wiring and distribution board dressing for a 4-unit row villa project near Hope Farm.',
     createdAt: '2026-03-12 10:00:00',
     status: 'open',
+    approvalStatus: 'APPROVED',
+    approvedAt: '2026-03-12 10:15:00',
+    approvedBy: 'Dr. Sunita Rao',
     responses: [
       {
         workerId: 'worker-ramesh-k',
@@ -828,6 +867,9 @@ export const INITIAL_JOB_REQUESTS: JobRequest[] = [
     description: 'Bathroom sanitary fixture alignment and concealed leak detection.',
     createdAt: '2026-03-14 09:15:00',
     status: 'open',
+    approvalStatus: 'APPROVED',
+    approvedAt: '2026-03-14 09:30:00',
+    approvedBy: 'Dr. Sunita Rao',
     responses: [
       {
         workerId: 'worker-lakshmi-p',
@@ -835,6 +877,40 @@ export const INITIAL_JOB_REQUESTS: JobRequest[] = [
         respondedAt: '2026-03-14 10:00:00'
       }
     ]
+  },
+  {
+    id: 'job-3',
+    employerId: 'emp-sobha-infra',
+    employerName: 'Sobha Urban Infrastructure Pvt Ltd',
+    trade: 'PLUMBER',
+    locality: 'HSR Layout',
+    requiredWorkers: 1,
+    duration: '5 Days',
+    dailyWageOffer: 1100,
+    description: 'Concealed CPVC pipe routing and bathroom rough-ins for apartment tower B.',
+    createdAt: '2026-11-06 14:30:00',
+    status: 'open',
+    approvalStatus: 'PENDING_ADMIN_APPROVAL',
+    targetWorkerId: 'worker-shankar-m',
+    targetWorkerName: 'Shankar M.',
+    responses: []
+  },
+  {
+    id: 'job-4',
+    employerId: 'emp-abc',
+    employerName: 'ABC Contractors, Bengaluru',
+    trade: 'ELECTRICIAN',
+    locality: 'Koramangala',
+    requiredWorkers: 1,
+    duration: '2 Days',
+    dailyWageOffer: 1400,
+    description: 'Urgent retail commercial space 3-phase load calculation and inverter wiring.',
+    createdAt: '2026-11-08 12:00:00',
+    status: 'open',
+    approvalStatus: 'PENDING_ADMIN_APPROVAL',
+    targetWorkerId: 'worker-ramesh-k',
+    targetWorkerName: 'Ramesh K.',
+    responses: []
   }
 ];
 

@@ -69,3 +69,4 @@ export function clearStoredUser(): void {
     console.error('Failed to clear auth user', err);
   }
 }
+

@@ -388,6 +388,18 @@ function LoginForm() {
                 ? 'Sign In to Employer Portal'
                 : 'Authenticate Admin Access'}
             </Button>
+
+            {activeRole === 'employer' && (
+              <div className="pt-2 text-center text-xs">
+                <span className="text-slate-500">New contractor or enterprise? </span>
+                <Link
+                  href="/employer/register"
+                  className="font-extrabold text-orange hover:text-orange-hover hover:underline"
+                >
+                  Register Account (Admin Approval Required) →
+                </Link>
+              </div>
+            )}
           </form>
 
           {/* Quick Demo switcher buttons at bottom */}
@@ -546,3 +558,4 @@ export default function LoginPage() {
     </div>
   );
 }
+

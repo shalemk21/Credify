@@ -29,25 +29,48 @@ class Database {
   private initFromStorage(): void {
     if (typeof window !== 'undefined') {
       try {
-        const stored = localStorage.getItem('credify_workers');
-        if (stored) {
-          const parsed = JSON.parse(stored);
+        const storedWorkers = localStorage.getItem('credify_workers');
+        if (storedWorkers) {
+          const parsed = JSON.parse(storedWorkers);
           if (Array.isArray(parsed) && parsed.length > 0) {
             this.workers = parsed;
           }
         }
-      } catch {}
+
+        const storedEmployers = localStorage.getItem('credify_employers');
+        if (storedEmployers) {
+          const parsed = JSON.parse(storedEmployers);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            this.employers = parsed;
+          }
+        }
+
+        const storedJobs = localStorage.getItem('credify_jobs');
+        if (storedJobs) {
+          const parsed = JSON.parse(storedJobs);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            this.jobs = parsed;
+          }
+        }
+      } catch (e) {
+        console.warn('Could not read from local storage', e);
+      }
     }
   }
 
-  private persistWorkers(): void {
+  private persistAll(): void {
     if (typeof window !== 'undefined') {
       try {
         localStorage.setItem('credify_workers', JSON.stringify(this.workers));
-      } catch {}
+        localStorage.setItem('credify_employers', JSON.stringify(this.employers));
+        localStorage.setItem('credify_jobs', JSON.stringify(this.jobs));
+      } catch (e) {
+        console.warn('Could not persist to local storage', e);
+      }
     }
   }
 
+  // --- Workers ---
   getWorkers(): WorkerProfile[] {
     this.initFromStorage();
     return [...this.workers];
@@ -63,7 +86,7 @@ class Database {
     const idx = this.workers.findIndex(w => w.id === id);
     if (idx === -1) return undefined;
     this.workers[idx] = { ...this.workers[idx], ...updates, updatedAt: new Date().toISOString() };
-    this.persistWorkers();
+    this.persistAll();
     return this.workers[idx];
   }
 
@@ -72,7 +95,7 @@ class Database {
     const idx = this.workers.findIndex(w => w.id === id);
     if (idx === -1) return false;
     this.workers.splice(idx, 1);
-    this.persistWorkers();
+    this.persistAll();
     return true;
   }
 
@@ -92,38 +115,191 @@ class Database {
   addWorker(worker: WorkerProfile): WorkerProfile {
     this.initFromStorage();
     this.workers.unshift(worker);
-    this.persistWorkers();
+    this.persistAll();
     return worker;
   }
 
+  // --- Employers & Approval Workflow ---
   getEmployers(): EmployerProfile[] {
+    this.initFromStorage();
     return [...this.employers];
   }
 
   getEmployerById(id: string): EmployerProfile | undefined {
+    this.initFromStorage();
     return this.employers.find(e => e.id === id);
   }
 
+  addEmployer(employer: EmployerProfile): EmployerProfile {
+    this.initFromStorage();
+    const exists = this.employers.findIndex(e => e.id === employer.id);
+    if (exists !== -1) {
+      this.employers[exists] = { ...this.employers[exists], ...employer };
+    } else {
+      this.employers.unshift(employer);
+    }
+    this.persistAll();
+
+    // Call server SQLite API in background if in browser
+    if (typeof window !== 'undefined') {
+      fetch('/api/employers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(employer),
+      }).catch(() => {});
+    }
+
+    return employer;
+  }
+
   updateEmployer(id: string, updates: Partial<EmployerProfile>): EmployerProfile | undefined {
+    this.initFromStorage();
     const idx = this.employers.findIndex(e => e.id === id);
     if (idx === -1) return undefined;
     this.employers[idx] = { ...this.employers[idx], ...updates };
+    this.persistAll();
     return this.employers[idx];
   }
 
+  approveEmployer(id: string, adminName: string): EmployerProfile | undefined {
+    this.initFromStorage();
+    const idx = this.employers.findIndex(e => e.id === id);
+    if (idx === -1) return undefined;
+    const now = new Date().toISOString().replace('T', ' ').slice(0, 19);
+    this.employers[idx] = {
+      ...this.employers[idx],
+      status: 'APPROVED',
+      verified: true,
+      approvedAt: now,
+      approvedBy: adminName,
+      rejectionReason: undefined,
+    };
+    this.persistAll();
+
+    if (typeof window !== 'undefined') {
+      fetch(`/api/employers/${id}/approve`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'approve', adminName }),
+      }).catch(() => {});
+    }
+
+    return this.employers[idx];
+  }
+
+  rejectEmployer(id: string, adminName: string, reason?: string): EmployerProfile | undefined {
+    this.initFromStorage();
+    const idx = this.employers.findIndex(e => e.id === id);
+    if (idx === -1) return undefined;
+    const now = new Date().toISOString().replace('T', ' ').slice(0, 19);
+    this.employers[idx] = {
+      ...this.employers[idx],
+      status: 'REJECTED',
+      verified: false,
+      approvedAt: now,
+      approvedBy: adminName,
+      rejectionReason: reason || 'Application did not meet Credify Directorate verification requirements',
+    };
+    this.persistAll();
+
+    if (typeof window !== 'undefined') {
+      fetch(`/api/employers/${id}/approve`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'reject', adminName, reason }),
+      }).catch(() => {});
+    }
+
+    return this.employers[idx];
+  }
+
+  // --- Jobs / Hire Requests & Approval Workflow ---
   getJobs(): JobRequest[] {
+    this.initFromStorage();
     return [...this.jobs];
   }
 
+  getJobById(id: string): JobRequest | undefined {
+    this.initFromStorage();
+    return this.jobs.find(j => j.id === id);
+  }
+
   addJob(job: JobRequest): JobRequest {
-    this.jobs.unshift(job);
-    return job;
+    this.initFromStorage();
+    const fullJob: JobRequest = {
+      ...job,
+      approvalStatus: job.approvalStatus || 'PENDING_ADMIN_APPROVAL',
+    };
+    this.jobs.unshift(fullJob);
+    this.persistAll();
+
+    if (typeof window !== 'undefined') {
+      fetch('/api/jobs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(fullJob),
+      }).catch(() => {});
+    }
+
+    return fullJob;
   }
 
   updateJob(id: string, updates: Partial<JobRequest>): JobRequest | undefined {
+    this.initFromStorage();
     const idx = this.jobs.findIndex(j => j.id === id);
     if (idx === -1) return undefined;
     this.jobs[idx] = { ...this.jobs[idx], ...updates };
+    this.persistAll();
+    return this.jobs[idx];
+  }
+
+  approveJob(id: string, adminName: string): JobRequest | undefined {
+    this.initFromStorage();
+    const idx = this.jobs.findIndex(j => j.id === id);
+    if (idx === -1) return undefined;
+    const now = new Date().toISOString().replace('T', ' ').slice(0, 19);
+    this.jobs[idx] = {
+      ...this.jobs[idx],
+      approvalStatus: 'APPROVED',
+      approvedAt: now,
+      approvedBy: adminName,
+      rejectionReason: undefined,
+    };
+    this.persistAll();
+
+    if (typeof window !== 'undefined') {
+      fetch(`/api/jobs/${id}/approve`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'approve', adminName }),
+      }).catch(() => {});
+    }
+
+    return this.jobs[idx];
+  }
+
+  rejectJob(id: string, adminName: string, reason?: string): JobRequest | undefined {
+    this.initFromStorage();
+    const idx = this.jobs.findIndex(j => j.id === id);
+    if (idx === -1) return undefined;
+    const now = new Date().toISOString().replace('T', ' ').slice(0, 19);
+    this.jobs[idx] = {
+      ...this.jobs[idx],
+      approvalStatus: 'REJECTED',
+      approvedAt: now,
+      approvedBy: adminName,
+      rejectionReason: reason || 'Wage offer below benchmark or site address incomplete',
+    };
+    this.persistAll();
+
+    if (typeof window !== 'undefined') {
+      fetch(`/api/jobs/${id}/approve`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'reject', adminName, reason }),
+      }).catch(() => {});
+    }
+
     return this.jobs[idx];
   }
 
@@ -134,6 +310,8 @@ class Database {
     if (typeof window !== 'undefined') {
       try {
         localStorage.removeItem('credify_workers');
+        localStorage.removeItem('credify_employers');
+        localStorage.removeItem('credify_jobs');
       } catch {}
     }
   }

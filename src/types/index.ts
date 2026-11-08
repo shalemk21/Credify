@@ -136,6 +136,12 @@ export interface JobRequest {
   description: string;
   createdAt: string;
   status: 'open' | 'in_progress' | 'fulfilled';
+  approvalStatus?: 'PENDING_ADMIN_APPROVAL' | 'APPROVED' | 'REJECTED';
+  approvedAt?: string;
+  approvedBy?: string;
+  rejectionReason?: string;
+  targetWorkerId?: string;
+  targetWorkerName?: string;
   responses: {
     workerId: string;
     status: 'accepted' | 'declined' | 'pending';
@@ -152,10 +158,16 @@ export interface EmployerProfile {
   gstin?: string;
   locality: BengaluruLocality;
   phone?: string;
+  email?: string;
   rating?: number;
   verified?: boolean;
   activeJobs?: number;
   totalHires?: number;
+  status?: 'PENDING_APPROVAL' | 'APPROVED' | 'REJECTED';
+  applicationDate?: string;
+  approvedAt?: string;
+  approvedBy?: string;
+  rejectionReason?: string;
 }
 
 export interface WageEstimate {

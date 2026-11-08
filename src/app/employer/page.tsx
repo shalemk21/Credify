@@ -25,8 +25,8 @@ import { MatchRing } from '@/components/shared/MatchRing';
 import { ProgressBar } from '@/components/shared/ProgressBar';
 import { Button } from '@/components/shared/Button';
 import { calculateMatchScore } from '@/lib/match';
-import { INITIAL_WORKERS } from '@/lib/db';
-import { WorkerProfile, Trade, BengaluruLocality } from '@/types';
+import { INITIAL_WORKERS, db } from '@/lib/db';
+import { WorkerProfile, Trade, BengaluruLocality, JobRequest } from '@/types';
 
 export default function EmployerDashboardPage() {
   const [workers, setWorkers] = useState<WorkerProfile[]>(INITIAL_WORKERS);
@@ -120,11 +120,36 @@ export default function EmployerDashboardPage() {
   };
 
   const handleSendHireRequest = () => {
+    if (!hireModalWorker) return;
+
+    // Create job request in database with pending admin approval
+    const newJob: JobRequest = {
+      id: 'job-' + Date.now(),
+      employerId: 'emp-abc',
+      employerName: 'ABC Contractors, Bengaluru',
+      trade: hireModalWorker.trade,
+      locality: selectedLocality,
+      requiredWorkers: 1,
+      duration: hireDuration,
+      dailyWageOffer: parseInt(hireDailyWage, 10),
+      description: `Direct hire request for ${hireModalWorker.name} at ₹${hireDailyWage}/day (${hireDuration}) in ${selectedLocality}.`,
+      createdAt: new Date().toISOString().replace('T', ' ').slice(0, 19),
+      status: 'open',
+      approvalStatus: 'PENDING_ADMIN_APPROVAL',
+      targetWorkerId: hireModalWorker.id,
+      targetWorkerName: hireModalWorker.name,
+      responses: [
+        { workerId: hireModalWorker.id, status: 'pending' },
+      ],
+    };
+
+    db.addJob(newJob);
+
     setHireSentSuccess(true);
     setTimeout(() => {
       setHireSentSuccess(false);
       setHireModalWorker(null);
-    }, 1800);
+    }, 2200);
   };
 
   return (
@@ -572,14 +597,30 @@ export default function EmployerDashboardPage() {
                   <CheckCircle2 className="w-7 h-7" />
                 </div>
                 <h4 className="text-base font-extrabold text-navy-primary">
-                  Request Sent Successfully!
+                  Application Logged to Database!
                 </h4>
-                <p className="text-xs text-content-secondary">
-                  Worker will receive a notification in their &quot;Jobs for you&quot; tab.
+                <p className="text-xs text-content-secondary max-w-xs mx-auto">
+                  Submitted for <strong>Admin Approval</strong>. Upon approval by Credify Directorate, offer will be dispatched to {hireModalWorker.name}.
                 </p>
+                <div className="pt-2">
+                  <Link
+                    href="/employer/hire-requests"
+                    className="text-xs font-bold text-orange hover:underline"
+                  >
+                    View Status in Hire Requests Tracker →
+                  </Link>
+                </div>
               </div>
             ) : (
               <div className="space-y-4 text-xs font-semibold text-navy-primary">
+                {/* Admin Approval Notice */}
+                <div className="p-3 rounded-2xl bg-amber-50/80 border border-amber-200 text-amber-800 text-[11px] leading-relaxed flex items-start gap-2">
+                  <ShieldCheck className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                  <span>
+                    <strong>Admin Verification:</strong> Per Credify trust protocols, hire applications must be approved by an Admin prior to worker dispatch.
+                  </span>
+                </div>
+
                 <div>
                   <label className="block mb-1 text-slate-500">Duration</label>
                   <select
