@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "pinggy": "ssh -p 443 -R0:localhost:3000 a.pinggy.io",
     "lint": "next lint",
     "test": "node --test src/lib/*.test.mjs"
   },

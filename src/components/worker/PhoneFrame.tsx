@@ -274,6 +274,15 @@ export const PhoneFrame: React.FC<PhoneFrameProps> = ({
                   </Link>
 
                   <Link
+                    href="/login"
+                    onClick={() => setPortalSwitcherOpen(false)}
+                    className="p-3 rounded-xl bg-orange-light/40 border border-orange/20 flex items-center justify-between text-xs font-bold text-navy-primary hover:bg-orange-light/70"
+                  >
+                    <span>🔐 Employer & Admin Login</span>
+                    <ExternalLink className="w-3.5 h-3.5 text-orange" />
+                  </Link>
+
+                  <Link
                     href="/passport/worker-ramesh-k"
                     onClick={() => setPortalSwitcherOpen(false)}
                     className="p-3 rounded-xl bg-blue-50/60 border border-blue-100 flex items-center justify-between text-xs font-bold text-navy-primary hover:bg-blue-50"

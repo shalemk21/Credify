@@ -2,12 +2,14 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Logo } from '@/components/shared/Logo';
 import { Button } from '@/components/shared/Button';
 import { BadgeLevel } from '@/components/shared/BadgeLevel';
 import { INITIAL_WORKERS, db } from '@/lib/db';
 import { WorkerProfile, Vouch } from '@/types';
 import { calculateTrustScore } from '@/lib/trust';
+import { getStoredUser, clearStoredUser, DEMO_ACCOUNTS, AuthUser } from '@/lib/auth';
 import {
   RotateCcw,
   ShieldCheck,
@@ -23,12 +25,15 @@ import {
   X,
   Star,
   UserX,
-  AlertTriangle
+  AlertTriangle,
+  LogOut
 } from 'lucide-react';
 
 export default function AdminPage() {
+  const router = useRouter();
   const [workers, setWorkers] = useState<WorkerProfile[]>([]);
   const [statusNotice, setStatusNotice] = useState<string>('');
+  const [currentAdmin, setCurrentAdmin] = useState<AuthUser | null>(null);
   
   // Vouch Moderation modal state
   const [moderatingWorker, setModeratingWorker] = useState<WorkerProfile | null>(null);
@@ -36,10 +41,32 @@ export default function AdminPage() {
   // Delete confirmation modal state
   const [deletingWorker, setDeletingWorker] = useState<WorkerProfile | null>(null);
 
-  // Initialize workers from db
+  // Initialize workers and auth user
   useEffect(() => {
     setWorkers(db.getWorkers());
+    const user = getStoredUser();
+    if (user && user.role === 'admin') {
+      setCurrentAdmin(user);
+    } else {
+      // Default to Directorate demo profile
+      setCurrentAdmin({
+        id: DEMO_ACCOUNTS.admin.id,
+        role: 'admin',
+        name: DEMO_ACCOUNTS.admin.name,
+        email: DEMO_ACCOUNTS.admin.email,
+        phone: DEMO_ACCOUNTS.admin.phone,
+        organization: DEMO_ACCOUNTS.admin.organization,
+        designation: DEMO_ACCOUNTS.admin.designation,
+        avatar: DEMO_ACCOUNTS.admin.avatar,
+        loginTime: new Date().toISOString(),
+      });
+    }
   }, []);
+
+  const handleLogout = () => {
+    clearStoredUser();
+    router.push('/login?role=admin');
+  };
 
   const toggleAssessor = (workerId: string) => {
     const worker = workers.find((w) => w.id === workerId);
@@ -182,6 +209,15 @@ export default function AdminPage() {
           </div>
 
           <div className="flex items-center gap-2.5 flex-wrap">
+            {/* Authenticated Admin Badge */}
+            <div className="hidden md:flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-slate-200 shadow-xs text-xs">
+              <div className="w-5 h-5 rounded-full bg-green text-white flex items-center justify-center font-bold text-[10px]">
+                {currentAdmin?.avatar || 'SR'}
+              </div>
+              <span className="font-bold text-navy-primary">{currentAdmin?.name || 'Dr. Sunita Rao'}</span>
+              <span className="text-[10px] text-slate-400 font-semibold">• Directorate</span>
+            </div>
+
             <Button href="/worker" variant="outline" size="sm" icon={<Smartphone className="w-4 h-4" />}>
               Worker PWA
             </Button>
@@ -190,11 +226,19 @@ export default function AdminPage() {
             </Button>
             <Button
               onClick={handleReset}
-              variant="orange"
+              variant="outline"
               size="sm"
               icon={<RotateCcw className="w-4 h-4" />}
             >
-              Reset Seed Data
+              Reset Data
+            </Button>
+            <Button
+              onClick={handleLogout}
+              variant="orange"
+              size="sm"
+              icon={<LogOut className="w-4 h-4" />}
+            >
+              Sign Out
             </Button>
           </div>
         </div>

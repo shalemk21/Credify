@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   LayoutDashboard,
   Search,
@@ -16,18 +16,47 @@ import {
   ExternalLink,
   ShieldCheck,
   Building2,
-  Smartphone
+  Smartphone,
+  LogOut
 } from 'lucide-react';
 import { Logo } from '@/components/shared/Logo';
 import { NotificationCenter } from '@/components/shared/NotificationCenter';
+import { getStoredUser, clearStoredUser, DEMO_ACCOUNTS, AuthUser } from '@/lib/auth';
 
 interface EmployerShellProps {
   children: React.ReactNode;
 }
 
 export const EmployerShell: React.FC<EmployerShellProps> = ({ children }) => {
+  const router = useRouter();
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
+
+  useEffect(() => {
+    const user = getStoredUser();
+    if (user && user.role === 'employer') {
+      setCurrentUser(user);
+    } else {
+      // Default to demo employer profile for seamless guest exploration
+      setCurrentUser({
+        id: DEMO_ACCOUNTS.employer.id,
+        role: 'employer',
+        name: DEMO_ACCOUNTS.employer.name,
+        email: DEMO_ACCOUNTS.employer.email,
+        phone: DEMO_ACCOUNTS.employer.phone,
+        organization: DEMO_ACCOUNTS.employer.organization,
+        designation: DEMO_ACCOUNTS.employer.designation,
+        avatar: DEMO_ACCOUNTS.employer.avatar,
+        loginTime: new Date().toISOString(),
+      });
+    }
+  }, []);
+
+  const handleLogout = () => {
+    clearStoredUser();
+    router.push('/login?role=employer');
+  };
 
   const navItems = [
     { label: 'Dashboard', href: '/employer', icon: LayoutDashboard },
@@ -112,15 +141,30 @@ export const EmployerShell: React.FC<EmployerShellProps> = ({ children }) => {
             <ExternalLink className="w-3.5 h-3.5" />
           </Link>
 
-          {/* Business Profile Chip */}
-          <div className="flex items-center gap-3 bg-white/10 p-2.5 rounded-xl border border-white/5 mt-2">
-            <div className="w-8 h-8 rounded-full bg-orange/20 border border-orange/40 text-orange flex items-center justify-center font-bold text-xs shrink-0">
-              AB
+          {/* Business Profile Chip & Logout */}
+          <div className="flex items-center justify-between gap-2 bg-white/10 p-2.5 rounded-xl border border-white/5 mt-2">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-8 h-8 rounded-full bg-orange/20 border border-orange/40 text-orange flex items-center justify-center font-bold text-xs shrink-0">
+                {currentUser?.avatar || 'AB'}
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-xs font-bold text-white truncate">
+                  {currentUser?.organization || 'ABC Contractors'}
+                </p>
+                <p className="text-[10px] text-slate-300 truncate">
+                  {currentUser?.name || 'Arun Bhat'}
+                </p>
+              </div>
             </div>
-            <div className="min-w-0 flex-1">
-              <p className="text-xs font-bold text-white truncate">ABC Contractors</p>
-              <p className="text-[10px] text-slate-300 truncate">Bengaluru</p>
-            </div>
+            <button
+              type="button"
+              onClick={handleLogout}
+              title="Sign Out to Login Page"
+              className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors shrink-0"
+              aria-label="Sign Out"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
           </div>
         </div>
       </aside>
@@ -169,9 +213,19 @@ export const EmployerShell: React.FC<EmployerShellProps> = ({ children }) => {
             {/* Working Interactive Notification Center (Requirement 4) */}
             <NotificationCenter align="right" />
 
-            <div className="w-8 h-8 rounded-full bg-navy-primary text-white flex items-center justify-center text-xs font-bold ring-2 ring-slate-100">
-              AB
-            </div>
+            {/* Sign Out / User Menu Button */}
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="inline-flex items-center gap-2 p-1 pl-2 sm:px-2.5 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200 border border-slate-200 text-xs font-bold text-navy-primary transition-colors"
+              title="Click to Sign Out"
+            >
+              <div className="w-6 h-6 rounded-full bg-navy-primary text-white flex items-center justify-center text-[10px] font-bold">
+                {currentUser?.avatar || 'AB'}
+              </div>
+              <span className="hidden sm:inline text-xs text-slate-700">Logout</span>
+              <LogOut className="w-3.5 h-3.5 text-slate-500 hidden sm:inline" />
+            </button>
           </div>
         </header>
 

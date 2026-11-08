@@ -81,7 +81,7 @@ export default function LandingPage() {
               </button>
             </div>
 
-            <Button href="/employer" variant="outline" size="md">
+            <Button href="/login" variant="outline" size="md">
               {t.nav.login}
             </Button>
             <Button href="/worker/onboarding" variant="orange" size="md">
@@ -130,7 +130,10 @@ export default function LandingPage() {
               <Link href="/worker/onboarding" onClick={() => setMobileMenuOpen(false)} className="text-orange">
                 Worker Onboarding (SkillPassport)
               </Link>
-              <Link href="/employer" onClick={() => setMobileMenuOpen(false)} className="text-navy-primary">
+              <Link href="/login" onClick={() => setMobileMenuOpen(false)} className="text-navy-primary font-bold">
+                Employer & Admin Sign In
+              </Link>
+              <Link href="/employer" onClick={() => setMobileMenuOpen(false)} className="text-slate-600">
                 Employer Dashboard
               </Link>
               <Link href="/worker/passport" onClick={() => setMobileMenuOpen(false)} className="text-slate-600">
@@ -144,8 +147,8 @@ export default function LandingPage() {
               <Button href="/worker/onboarding" variant="orange" fullWidth>
                 {t.nav.getStarted}
               </Button>
-              <Button href="/employer" variant="outline" fullWidth>
-                {t.nav.forEmployers}
+              <Button href="/login" variant="outline" fullWidth>
+                {t.nav.login}
               </Button>
             </div>
           </div>
@@ -266,6 +269,7 @@ export default function LandingPage() {
           <div className="flex items-center gap-4 text-white/60">
             <Link href="/worker/privacy" className="hover:text-white">DPDP Act Privacy</Link>
             <Link href="/passport/worker-ramesh-k" className="hover:text-white">Sample Public Passport</Link>
+            <Link href="/login" className="hover:text-white">Sign In</Link>
             <Link href="/admin" className="hover:text-orange">Admin Panel</Link>
           </div>
         </div>
