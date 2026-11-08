@@ -12,3 +12,4 @@ declare module 'node:sqlite' {
     prepare(sql: string): StatementSync;
   }
 }
+

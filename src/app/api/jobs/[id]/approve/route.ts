@@ -31,3 +31,4 @@ export async function POST(
     return NextResponse.json({ success: false, error: 'Failed to process job approval' }, { status: 500 });
   }
 }
+

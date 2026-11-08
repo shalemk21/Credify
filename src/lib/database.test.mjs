@@ -115,3 +115,4 @@ test('Approval Workflow: Job application created by employer requires admin appr
   assert.equal(rejectedJob.approval_status, 'REJECTED');
   assert.equal(rejectedJob.rejection_reason, 'Wage offer ₹500 is below minimum standard benchmark of ₹700');
 });
+
